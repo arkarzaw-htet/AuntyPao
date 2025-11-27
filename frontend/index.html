@@ -137,7 +137,7 @@
         feedback.style.backgroundColor = 'transparent';
         feedback.style.color = '#333';
 
-        fetch('http://127.0.0.1:8000/upload', {
+        fetch('/api/upload', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

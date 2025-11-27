@@ -132,7 +132,7 @@
 
       output.textContent = "Processing..."; // Give user feedback immediately
 
-      fetch('http://127.0.0.1:8000/register', {
+      fetch('/api/register', {
         method: 'POST', // Method is POST
         headers: {
           'Content-Type': 'application/json' // We are sending JSON

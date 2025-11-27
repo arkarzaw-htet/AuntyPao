@@ -175,7 +175,7 @@ loginBtn.addEventListener("click", () => {
   
   output.textContent = "Attempting login..."; // Immediate feedback
 
-  fetch("http://127.0.0.1:8000/login", {
+  fetch("/api/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: name, password: password })
@@ -228,7 +228,7 @@ deleteBtn.addEventListener("click", () => {
   const name = document.getElementById("nameInput").value;
   output.textContent = "Deleting all contents..."; // Immediate feedback
 
-  fetch("http://127.0.0.1:8000/", {
+  fetch("/api/", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: name })
