@@ -1,33 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Navigation Bar Styling */
+    .navbar {
+      width: 100%;
+      background-color: #007bff; /* Primary Blue */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 15px;
+      margin-right: 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar a:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .navbar a.active {
+      background-color: #0056b3;
+      font-weight: bold;
+    }
+
+    /* Main Content Container */
+    .container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-top: 50px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 30px;
+    }
+
+    /* Input and Button Styling */
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    }
+
+    #getDataBtn {
+      background-color: #28a745; /* Success Green */
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    #getDataBtn:hover {
+      background-color: #1e7e34; /* Darker green on hover */
+    }
+
+    /* Output Area Styling */
+    #output {
+      white-space: pre-wrap;
+      background-color: #e9ecef;
+      border: 1px solid #ced4da;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
 </head>
 <body>
+  
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="log.html">Login</a>
+    <a href="#" class="active">Register</a> </div>
+
+  <div class="container">
+    <h2>Register Account</h2>
+    
     <input type="text" id="nameInput" placeholder="Enter your name">
     <input type="password" id="pass" placeholder="Enter your password">
 
+    <button id="getDataBtn">Register</button>
 
-  <button id="getDataBtn">Register</button>
+    <pre id="output"></pre>
+  </div>
 
-  <pre id="output"></pre>
-  <p>Go to main: <a href="index.html">Main</a></p>
-  <p>Go to register: <a href="log.html">Login</a></p>
 
   <script>
-    
-
     const button = document.getElementById('getDataBtn');
-
-
     const output = document.getElementById('output');
-
-
 
     button.addEventListener('click', () => {
       const name = document.getElementById('nameInput').value;
       const password = document.getElementById("pass").value;
 
+      output.textContent = "Processing..."; // Give user feedback immediately
 
       fetch('http://127.0.0.1:8000/register', {
         method: 'POST', // Method is POST
@@ -36,12 +139,20 @@
         },
         body: JSON.stringify({ username: name, password: password }) // Convert JS object to JSON string
       })
-      .then(response => response.json())
+      .then(response => {
+        // Check if the response is OK (status 200-299)
+        if (!response.ok) {
+            // Throw an error to be caught by the .catch() block
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         output.textContent = JSON.stringify(data, null, 2); // Show response
       })
       .catch(error => {
-        console.error('Error:', error);
+        output.textContent = `Error: Could not connect to the API or server error. Check console for details.`;
+        console.error('Fetch Error:', error);
       });
     });
   </script>

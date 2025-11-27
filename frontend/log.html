@@ -1,29 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Navigation Bar Styling */
+    .navbar {
+      width: 100%;
+      background-color: #007bff; /* Primary Blue */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 15px;
+      margin-right: 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar a:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .navbar a.active {
+      background-color: #0056b3;
+      font-weight: bold;
+    }
+
+    /* Main Content Container */
+    .container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-top: 50px;
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 30px;
+    }
+
+    /* Input and Button Styling */
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    #getDataBtn {
+      background-color: #007bff; /* Primary Blue for Login */
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    #getDataBtn:hover {
+      background-color: #0056b3;
+    }
+    
+    #deleteAllBtn {
+      background-color: #dc3545; /* Danger Red for Delete */
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px; /* Separator from login button */
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+
+    #deleteAllBtn:hover {
+      background-color: #c82333;
+    }
+
+    /* Output Area Styling */
+    #output {
+      width: 100%; /* Take full width of container */
+      white-space: pre-wrap;
+      background-color: #e9ecef;
+      border: 1px solid #ced4da;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    #output ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #output li {
+        padding: 5px 0;
+        border-bottom: 1px dotted #ccc;
+    }
+    #output li:last-child {
+        border-bottom: none;
+    }
+
+  </style>
 </head>
 <body>
+  
+  <div class="navbar">
+    <a href="index.html">Home</a>
+    <a href="#" class="active">Login</a> <a href="reg.html">Register</a>
+  </div>
+
+  <div class="container">
+    <h2>Account Login</h2>
+    
     <input type="text" id="nameInput" placeholder="Enter your name">
     <input type="password" id="pass" placeholder="Enter your password">
 
+    <button id="getDataBtn">Login</button>
+    
+    <button id="deleteAllBtn" style="display:none;">
+      Delete All User Data
+    </button>
 
-  <button id="getDataBtn">Login</button>
-
-  <pre id="output"></pre>
-  <p>Go to main: <a href="index.html">Main</a></p>
-  <p>Go to register: <a href="reg.html">Register</a></p>
-  <button id="deleteAllBtn" style="display:none; margin-top:10px;">
-  Delete All
-  </button>
-
-  <style>
-  #output {
-    max-width: 300px;   /* change to any width you want */
-    word-wrap: break-word;
-    white-space: normal;
-  }
-</style>
+    <pre id="output">Status/Content will appear here.</pre>
+  </div>
 
 
 <script>
@@ -33,50 +170,84 @@ const deleteBtn = document.getElementById("deleteAllBtn");
 const output = document.getElementById("output");
 
 loginBtn.addEventListener("click", () => {
-
   const name = document.getElementById("nameInput").value;
   const password = document.getElementById("pass").value;
+  
+  output.textContent = "Attempting login..."; // Immediate feedback
 
   fetch("http://127.0.0.1:8000/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: name, password: password })
   })
-  .then(r => r.json())
+  .then(response => {
+    // Check for HTTP status errors (e.g., 401 Unauthorized, 404 Not Found)
+    if (!response.ok) {
+        throw new Error(`Login failed with status: ${response.status}`);
+    }
+    return response.json();
+  })
   .then(data => {
 
-    if (!data.contents) {
-      output.textContent = "Invalid login!";
+    if (data.detail) {
+      // Handle server-side errors or explicit messages that aren't 'contents'
+      output.textContent = data.detail;
+      deleteBtn.style.display = "none";
       return;
     }
 
-    // show content
+    if (!data.contents) {
+      // Fallback for unexpected response structure
+      output.textContent = "Login successful, but no content returned. Check API response.";
+      deleteBtn.style.display = "none";
+      return;
+    }
+
+    // Display retrieved content as a list
     const html = data.contents.map(item => `<li>${item}</li>`).join("");
-    output.innerHTML = `<ul>${html}</ul>`;
+    output.innerHTML = `<h3>User Contents:</h3><ul>${html}</ul>`;
 
     // show delete button
     deleteBtn.style.display = "block";
 
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+      // General error handler for fetch failure or HTTP status errors
+      output.textContent = `Error: ${err.message}. Check console for details.`;
+      console.error(err);
+      deleteBtn.style.display = "none"; // Hide delete button on login failure
+  });
 });
 
 
 deleteBtn.addEventListener("click", () => {
-
+  if (!confirm("Are you sure you want to delete ALL contents for this user? This cannot be undone.")) {
+      return;
+  }
+  
   const name = document.getElementById("nameInput").value;
+  output.textContent = "Deleting all contents..."; // Immediate feedback
 
   fetch("http://127.0.0.1:8000/", {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: name })
   })
-  .then(r => r.json())
+  .then(response => {
+    if (!response.ok) {
+        throw new Error(`Deletion failed with status: ${response.status}`);
+    }
+    return response.json();
+  })
   .then(data => {
-    output.innerHTML = "";
+    output.innerHTML = `Deletion successful. Server Response: ${JSON.stringify(data)}`;
+    deleteBtn.style.display = "none"; // Hide delete button after successful deletion
     alert("All contents deleted!");
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    output.textContent = `Error during deletion: ${err.message}. Check console for details.`;
+    console.error(err);
+  });
 
 });
 

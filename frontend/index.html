@@ -1,38 +1,170 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Fetch API Example</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Upload Content</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Navigation Bar Styling */
+    .navbar {
+      width: 100%;
+      background-color: #007bff; /* Primary Blue */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 10px 20px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 15px;
+      margin-right: 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+
+    .navbar a:hover {
+      background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .navbar a.active {
+      background-color: #0056b3;
+      font-weight: bold;
+    }
+
+    /* Main Content Container */
+    .container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-top: 50px;
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 30px;
+    }
+
+    /* Input and Textarea Styling */
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
+      resize: vertical; /* Allow vertical resizing of textarea */
+    }
+    
+    textarea {
+        min-height: 150px; /* Ensure textarea is a decent size */
+    }
+
+    #setDataBtn {
+      background-color: #ffc107; /* Warning Yellow for Send/Upload */
+      color: #333;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    #setDataBtn:hover {
+      background-color: #e0a800; /* Darker yellow on hover */
+    }
+
+    /* Feedback Styling */
+    #feedback {
+        margin-top: 20px;
+        text-align: center;
+        padding: 10px;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-    <input type="text" id="nameInput" placeholder="Enter your name">
-    <textarea id="text" rows="10" cols="50" placeholder="Paste your text here..."></textarea>
-  <button id="setDataBtn">Send</button>
-  <p>Go to login: <a href="log.html">Login</a></p>
-  <p>Go to register: <a href="reg.html">Register</a></p>
+    
+  <div class="navbar">
+    <a href="#" class="active">Home</a> <a href="log.html">Login</a>
+    <a href="reg.html">Register</a>
+  </div>
+
+  <div class="container">
+    <h2>Upload Content</h2>
+    
+    <input type="text" id="nameInput" placeholder="Enter your username">
+    <textarea id="text" rows="10" cols="50" placeholder="Paste your content here..."></textarea>
+    
+    <button id="setDataBtn">Send Content</button>
+    
+    <p id="feedback"></p>
+  </div>
 
 
   <script>
-    
+    const button = document.getElementById('setDataBtn');
+    const feedback = document.getElementById('feedback');
 
-
-    const button1 = document.getElementById('setDataBtn');
-
-    button1.addEventListener('click', () =>{
+    button.addEventListener('click', () => {
         const name = document.getElementById('nameInput').value;
         const text = document.getElementById('text').value;
 
-        fetch('http://127.0.0.1:8000/upload' , {
-            method : 'POST',
-            headers :{
-                'Content-Type' : 'application/json'
+        feedback.textContent = "Sending..."; // Immediate feedback
+        feedback.style.backgroundColor = 'transparent';
+        feedback.style.color = '#333';
+
+        fetch('http://127.0.0.1:8000/upload', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            body : JSON.stringify({username : name , post : text})
+            body: JSON.stringify({ username: name, post: text })
         })
-
-
+        .then(response => {
+            if (response.ok) {
+                // Assuming a successful response is 200-299
+                feedback.textContent = 'Content uploaded successfully!';
+                feedback.style.backgroundColor = '#d4edda'; // Light green
+                feedback.style.color = '#155724'; // Dark green text
+                document.getElementById('text').value = ''; // Clear text area
+            } else {
+                // Handle non-OK status codes
+                return response.json().then(data => {
+                    throw new Error(data.detail || `Upload failed with status: ${response.status}`);
+                });
+            }
+        })
+        .catch(error => {
+            feedback.textContent = `Upload failed: ${error.message}`;
+            feedback.style.backgroundColor = '#f8d7da'; // Light red
+            feedback.style.color = '#721c24'; // Dark red text
+            console.error('Fetch Error:', error);
+        });
     });
-
-
   </script>
 </body>
 </html>
